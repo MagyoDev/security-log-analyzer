@@ -28,7 +28,7 @@ def start_capture():
 
     return {
         "message": "Capture started",
-        "status": app_state.get_snapshot(),
+        "state": app_state.get_snapshot(),
     }
 
 @router.post("/stop")
