@@ -46,7 +46,7 @@ class AppState:
                 "buckets": {},
             },
             "findings": [
-                "Nenhuma alerta detectada."
+                "Nenhuma alerta detectado."
             ],
         }
     

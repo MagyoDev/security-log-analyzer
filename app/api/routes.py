@@ -1,8 +1,12 @@
 from fastapi import APIRouter
 
+from app.core.capture_service import capture_service
 from app.core.state import app_state
+from app.schemas.capture import CaptureRequest
+
 
 router = APIRouter(prefix="/api")
+
 
 @router.get("/status")
 def get_status():
@@ -10,6 +14,7 @@ def get_status():
     Retorna o estado atual da aplicação.
     """
     return app_state.get_snapshot()
+
 
 @router.get("/report")
 def get_report():
@@ -19,29 +24,36 @@ def get_report():
     snapshot = app_state.get_snapshot()
     return snapshot["report"]
 
+
 @router.post("/start")
-def start_capture():
+def start_capture(request: CaptureRequest):
     """
-    Captura simulada - TESTANDO mudança de estado da aplicação.
+    Inicia uma captura real de pacotes.
     """
-    app_state.start_capture(mode="fixed", packet_limit=100)
+    result = capture_service.start_capture(
+        mode=request.mode,
+        packet_limit=request.packet_limit,
+        iface=request.iface,
+    )
 
     return {
-        "message": "Capture started",
+        "message": result["message"],
         "state": app_state.get_snapshot(),
     }
+
 
 @router.post("/stop")
 def stop_capture():
     """
-    Para a captura simulada.
+    Para a captura em andamento.
     """
-    app_state.stop_capture()
+    result = capture_service.stop_capture()
 
     return {
-        "message": "Capture stopped",
+        "message": result["message"],
         "state": app_state.get_snapshot(),
     }
+
 
 @router.post("/reset")
 def reset_state():

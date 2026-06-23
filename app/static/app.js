@@ -38,8 +38,16 @@ function updateDashboard(state) {
     totalFlowsElement.textContent = report.flows.length;
     riskLevelElement.textContent = report.risk_level;
 
+    if (report.findings.length > 0) {
+        riskDescriptionElement.textContent = report.findings[0];
+    } else {
+        riskDescriptionElement.textContent = "Nenhum alerta crítico";
+    }
+
     if (state.is_capturing) {
         captureStatusTextElement.textContent = "Captura em andamento";
+    } else if (state.stopped_at) {
+        captureStatusTextElement.textContent = "Captura finalizada";
     } else {
         captureStatusTextElement.textContent = "Aguardando captura";
     }
@@ -47,21 +55,48 @@ function updateDashboard(state) {
 
 
 async function startCapture() {
+    const modeElement = document.getElementById("capture-mode");
+    const packetCountElement = document.getElementById("packet-count");
+
+    const mode = modeElement.value;
+    const packetLimit = Number(packetCountElement.value);
+
     const response = await fetch("/api/start", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            mode: mode,
+            packet_limit: packetLimit
+        })
+    });
+
+    const data = await response.json();
+    updateDashboard(data.state);
+}
+
+
+async function stopCapture() {
+    const response = await fetch("/api/stop", {
         method: "POST"
     });
 
     const data = await response.json();
-
     updateDashboard(data.state);
 }
 
 
 function setupEventListeners() {
     const startButton = document.getElementById("start-capture-button");
+    const stopButton = document.getElementById("stop-capture-button");
 
     startButton.addEventListener("click", function () {
         startCapture();
+    });
+
+    stopButton.addEventListener("click", function () {
+        stopCapture();
     });
 }
 
@@ -69,3 +104,5 @@ function setupEventListeners() {
 checkApiStatus();
 fetchStatus();
 setupEventListeners();
+
+setInterval(fetchStatus, 2000);
