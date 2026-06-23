@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>S.L.A — Security Log Analyzer</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">🛡️</div>
+            <div>
+                <h1>S.L.A</h1>
+                <p>Security Log Analyzer</p>
+            </div>
+        </div>
+
+        <nav class="menu">
+            <a class="active" href="#">Dashboard</a>
+            <a href="#">Endpoints</a>
+            <a href="#">Fluxos</a>
+            <a href="#">Protocolos</a>
+            <a href="#">Portas</a>
+            <a href="#">DNS</a>
+            <a href="#">TCP Flags</a>
+            <a href="#">Alertas</a>
+            <a href="#">Exportações</a>
+        </nav>
+
+        <section class="capture-box">
+            <h2>Controle de captura</h2>
+
+            <label>Modo</label>
+            <select>
+                <option>Quantidade definida</option>
+                <option>Contínuo</option>
+            </select>
+
+            <label>Pacotes</label>
+            <input type="number" value="100" />
+
+            <button>Iniciar captura</button>
+        </section>
+    </aside>
+
+    <main class="content">
+        <header class="topbar">
+            <div>
+                <h2>Dashboard</h2>
+                <p>Visão geral do tráfego de rede local</p>
+            </div>
+
+            <div id="api-status" class="status">
+                Verificando API...
+            </div>
+        </header>
+
+        <section class="cards">
+            <article class="card">
+                <p>Pacotes capturados</p>
+                <strong>0</strong>
+                <span>Aguardando captura</span>
+            </article>
+
+            <article class="card">
+                <p>Endpoints únicos</p>
+                <strong>0</strong>
+                <span>Nenhum endpoint identificado</span>
+            </article>
+
+            <article class="card">
+                <p>Fluxos</p>
+                <strong>0</strong>
+                <span>Nenhum fluxo identificado</span>
+            </article>
+
+            <article class="card risk">
+                <p>Nível de risco</p>
+                <strong>Baixo</strong>
+                <span>Nenhum alerta crítico</span>
+            </article>
+        </section>
+
+        <section class="grid">
+            <article class="panel">
+                <h3>Distribuição de protocolos</h3>
+                <div class="placeholder">Gráfico de protocolos</div>
+            </article>
+
+            <article class="panel">
+                <h3>Top Endpoints</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>IP</th>
+                            <th>Hostname</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="3">Aguardando dados...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </article>
+
+            <article class="panel">
+                <h3>Top Portas</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Porta</th>
+                            <th>Serviço</th>
+                            <th>Pacotes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="3">Aguardando dados...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </article>
+
+            <article class="panel">
+                <h3>Alertas recentes</h3>
+                <div class="alert empty">
+                    Nenhum alerta detectado.
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
