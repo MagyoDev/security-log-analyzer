@@ -32,15 +32,15 @@
             <h2>Controle de captura</h2>
 
             <label>Modo</label>
-            <select>
-                <option>Quantidade definida</option>
-                <option>Contínuo</option>
+            <select id="capture-mode">
+                <option value="fixed">Quantidade definida</option>
+                <option value="continuous">Contínuo</option>
             </select>
 
             <label>Pacotes</label>
-            <input type="number" value="100" />
+            <input id="packet-count" type="number" value="100" />
 
-            <button>Iniciar captura</button>
+            <button id="start-capture-button">Iniciar captura</button>
         </section>
     </aside>
 
@@ -55,30 +55,30 @@
                 Verificando API...
             </div>
         </header>
-
+        
         <section class="cards">
             <article class="card">
                 <p>Pacotes capturados</p>
-                <strong>0</strong>
-                <span>Aguardando captura</span>
+                <strong id="total-packets">0</strong>
+                <span id="capture-status-text">Aguardando captura</span>
             </article>
 
             <article class="card">
                 <p>Endpoints únicos</p>
-                <strong>0</strong>
+                <strong id="total-endpoints">0</strong>
                 <span>Nenhum endpoint identificado</span>
             </article>
 
             <article class="card">
                 <p>Fluxos</p>
-                <strong>0</strong>
+                <strong id="total-flows">0</strong>
                 <span>Nenhum fluxo identificado</span>
             </article>
 
             <article class="card risk">
                 <p>Nível de risco</p>
-                <strong>Baixo</strong>
-                <span>Nenhum alerta crítico</span>
+                <strong id="risk-level">Baixo</strong>
+                <span id="risk-description">Nenhum alerta crítico</span>
             </article>
         </section>
 
