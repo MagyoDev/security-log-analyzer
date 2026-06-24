@@ -16,7 +16,14 @@ class CaptureService:
         self.stop_event = Event()
         self.capture_thread = None
 
-    def start_capture(self, mode: str, packet_limit: int, iface: str | None = None):
+    def start_capture(
+        self,
+        mode: str,
+        packet_limit: int,
+        iface: str | None = None,
+        protocol_filter: str | None = None,
+        host_filter: str | None = None,
+    ):
         """
         Inicia uma captura de pacotes.
 
@@ -29,6 +36,12 @@ class CaptureService:
 
         iface:
             interface de rede, opcional
+
+        protocol_filter:
+            filtro de protocolo, como tcp, udp, icmp, dns, http ou https
+
+        host_filter:
+            IP específico para filtrar
         """
         snapshot = app_state.get_snapshot()
 
@@ -44,10 +57,21 @@ class CaptureService:
                 "message": "Invalid capture mode",
             }
 
+        bpf_filter = self._build_bpf_filter(
+            protocol_filter=protocol_filter,
+            host_filter=host_filter,
+        )
+
         self.analyzer.reset()
         self.stop_event.clear()
 
-        app_state.start_capture(mode=mode, packet_limit=packet_limit)
+        app_state.start_capture(
+            mode=mode,
+            packet_limit=packet_limit,
+            iface=iface,
+            protocol_filter=protocol_filter,
+            host_filter=host_filter,
+        )
 
         if mode == "continuous":
             count = 0
@@ -56,7 +80,7 @@ class CaptureService:
 
         self.capture_thread = Thread(
             target=self._capture_worker,
-            args=(count, iface),
+            args=(count, iface, bpf_filter),
             daemon=True,
         )
 
@@ -89,8 +113,40 @@ class CaptureService:
             "stopped": True,
             "message": "Capture stopped",
         }
+    
+    def _build_bpf_filter(
+        self,
+        protocol_filter: str | None,
+        host_filter: str | None,
+    ) -> str | None:
+        """
+        Monta um filtro BPF para o Scapy.
+        """
+        filters = []
 
-    def _capture_worker(self, count: int, iface: str | None):
+        if protocol_filter:
+            if protocol_filter == "tcp":
+                filters.append("tcp")
+            elif protocol_filter == "udp":
+                filters.append("udp")
+            elif protocol_filter == "icmp":
+                filters.append("icmp")
+            elif protocol_filter == "dns":
+                filters.append("port 53")
+            elif protocol_filter == "http":
+                filters.append("tcp port 80")
+            elif protocol_filter == "https":
+                filters.append("tcp port 443")
+
+        if host_filter:
+            filters.append(f"host {host_filter}")
+
+        if not filters:
+            return None
+
+        return " and ".join(filters)
+
+    def _capture_worker(self, count: int, iface: str | None, bpf_filter: str | None):
         """
         Ela executa o sniff do Scapy e atualiza o relatório ao terminar.
         """
@@ -101,6 +157,7 @@ class CaptureService:
                 prn=self._handle_packet,
                 count=count,
                 iface=iface,
+                filter=bpf_filter,
                 store=False,
                 stop_filter=self._should_stop,
             )

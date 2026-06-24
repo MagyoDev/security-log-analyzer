@@ -438,3 +438,11 @@ button:disabled {
     background: rgba(231, 76, 60, 0.18);
     color: #ff7675;
 }
+
+.capture-box {
+    max-height: none;
+}
+
+.capture-box input::placeholder {
+    color: #5f7695;
+}

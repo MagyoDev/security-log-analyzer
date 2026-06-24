@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from fastapi.responses import FileResponse
+from scapy.all import get_if_list
 
 from app.core.capture_service import capture_service
 from app.core.exporters import (
@@ -38,6 +39,8 @@ def start_capture(request: CaptureRequest):
         mode=request.mode,
         packet_limit=request.packet_limit,
         iface=request.iface,
+        protocol_filter=request.protocol_filter,
+        host_filter=request.host_filter,
     )
 
     return {
@@ -67,6 +70,17 @@ def reset_state():
     return {
         "message": "State reset",
         "state": app_state.get_snapshot(),
+    }
+
+@router.get("/interfaces")
+def get_interfaces():
+    """
+    Retorna as interfaces de rede disponíveis para captura.
+    """
+    interfaces = get_if_list()
+
+    return {
+        "interfaces": interfaces
     }
 
 @router.get("/export/json")
@@ -133,3 +147,4 @@ def export_csv():
         filename=file_path.name,
         media_type="application/zip",
     )
+

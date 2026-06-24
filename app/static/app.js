@@ -15,6 +15,25 @@ async function checkApiStatus() {
     }
 }
 
+async function loadNetworkInterfaces() {
+    const interfaceSelect = document.getElementById("network-interface");
+
+    try {
+        const response = await fetch("/api/interfaces");
+        const data = await response.json();
+
+        data.interfaces.forEach(function (iface) {
+            const option = document.createElement("option");
+
+            option.value = iface;
+            option.textContent = iface;
+
+            interfaceSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error("Erro ao carregar interfaces:", error);
+    }
+}
 
 async function fetchStatus() {
     const response = await fetch("/api/status");
@@ -61,6 +80,9 @@ function updateCaptureControls(state) {
     const resetButton = document.getElementById("reset-button");
     const captureModeElement = document.getElementById("capture-mode");
     const packetCountElement = document.getElementById("packet-count");
+    const networkInterfaceElement = document.getElementById("network-interface");
+    const protocolFilterElement = document.getElementById("protocol-filter");
+    const hostFilterElement = document.getElementById("host-filter");
 
     if (state.is_capturing) {
         startButton.disabled = true;
@@ -68,18 +90,25 @@ function updateCaptureControls(state) {
         resetButton.disabled = true;
         captureModeElement.disabled = true;
         packetCountElement.disabled = true;
+        networkInterfaceElement.disabled = true;
+        protocolFilterElement.disabled = true;
+        hostFilterElement.disabled = true;
     } else {
         startButton.disabled = false;
         stopButton.disabled = true;
         resetButton.disabled = false;
         captureModeElement.disabled = false;
         packetCountElement.disabled = false;
+        networkInterfaceElement.disabled = false;
+        protocolFilterElement.disabled = false;
+        hostFilterElement.disabled = false;
     }
 }
 
-
 function updateCaptureStatusPanel(state) {
     const statusLabelElement = document.getElementById("capture-status-label");
+    const activeInterfaceElement = document.getElementById("active-interface");
+    const activeFilterElement = document.getElementById("active-filter");
     const startedAtElement = document.getElementById("started-at");
     const stoppedAtElement = document.getElementById("stopped-at");
     const errorMessageElement = document.getElementById("error-message");
@@ -89,11 +118,28 @@ function updateCaptureStatusPanel(state) {
     statusLabelElement.textContent = translatedStatus;
     statusLabelElement.className = `status-label ${state.status}`;
 
+    activeInterfaceElement.textContent = state.iface || "Padrão";
+
+    const filters = [];
+
+    if (state.protocol_filter) {
+        filters.push(`Protocolo: ${state.protocol_filter}`);
+    }
+
+    if (state.host_filter) {
+        filters.push(`Host: ${state.host_filter}`);
+    }
+
+    if (filters.length === 0) {
+        activeFilterElement.textContent = "Nenhum";
+    } else {
+        activeFilterElement.textContent = filters.join(" | ");
+    }
+
     startedAtElement.textContent = state.started_at || "-";
     stoppedAtElement.textContent = state.stopped_at || "-";
     errorMessageElement.textContent = state.error_message || "-";
 }
-
 
 function updateCards(state, report) {
     const totalPacketsElement = document.getElementById("total-packets");
@@ -390,13 +436,18 @@ function renderFindings(findings) {
     });
 }
 
-
 async function startCapture() {
     const modeElement = document.getElementById("capture-mode");
     const packetCountElement = document.getElementById("packet-count");
+    const networkInterfaceElement = document.getElementById("network-interface");
+    const protocolFilterElement = document.getElementById("protocol-filter");
+    const hostFilterElement = document.getElementById("host-filter");
 
     const mode = modeElement.value;
     const packetLimit = Number(packetCountElement.value);
+    const iface = networkInterfaceElement.value || null;
+    const protocolFilter = protocolFilterElement.value || null;
+    const hostFilter = hostFilterElement.value.trim() || null;
 
     if (mode === "fixed" && (!packetLimit || packetLimit < 1)) {
         alert("Informe uma quantidade válida de pacotes.");
@@ -410,7 +461,10 @@ async function startCapture() {
         },
         body: JSON.stringify({
             mode: mode,
-            packet_limit: packetLimit
+            packet_limit: packetLimit,
+            iface: iface,
+            protocol_filter: protocolFilter,
+            host_filter: hostFilter
         })
     });
 
@@ -473,6 +527,7 @@ function setupEventListeners() {
 
 
 checkApiStatus();
+loadNetworkInterfaces();
 fetchStatus();
 setupEventListeners();
 

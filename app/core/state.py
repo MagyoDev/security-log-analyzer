@@ -16,6 +16,9 @@ class AppState:
         self.status = "idle"
         self.capture_mode = "fixed"
         self.packet_limit = 100
+        self.iface = None
+        self.protocol_filter = None
+        self.host_filter = None
         self.started_at = None
         self.stopped_at = None
         self.error_message = None
@@ -52,7 +55,14 @@ class AppState:
             ],
         }
     
-    def start_capture(self, mode: str, packet_limit: int):
+    def start_capture(
+        self,
+        mode: str,
+        packet_limit: int,
+        iface: str | None = None,
+        protocol_filter: str | None = None,
+        host_filter: str | None = None,
+    ):
         """
         Marca o início da captura de pacotes.
         """
@@ -61,6 +71,9 @@ class AppState:
             self.status = "capturing"
             self.capture_mode = mode
             self.packet_limit = packet_limit
+            self.iface = iface
+            self.protocol_filter = protocol_filter
+            self.host_filter = host_filter
             self.started_at = datetime.now().isoformat(timespec="seconds")
             self.stopped_at = None
             self.error_message = None
@@ -94,6 +107,9 @@ class AppState:
             self.status = "idle"
             self.capture_mode = "fixed"
             self.packet_limit = 100
+            self.iface = None
+            self.protocol_filter = None
+            self.host_filter = None
             self.started_at = None
             self.stopped_at = None
             self.error_message = None
@@ -116,6 +132,9 @@ class AppState:
                 "status": self.status,
                 "capture_mode": self.capture_mode,
                 "packet_limit": self.packet_limit,
+                "iface": self.iface,
+                "protocol_filter": self.protocol_filter,
+                "host_filter": self.host_filter,
                 "started_at": self.started_at,
                 "stopped_at": self.stopped_at,
                 "error_message": self.error_message,
