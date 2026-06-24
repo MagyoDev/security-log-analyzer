@@ -250,3 +250,95 @@ th {
 .secondary-button:hover {
     background: #17243a;
 }
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.bar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.protocol-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 80px;
+    align-items: center;
+    gap: 12px;
+}
+
+.protocol-name {
+    font-weight: bold;
+    color: #e5eefc;
+}
+
+.protocol-track {
+    height: 10px;
+    background: #0b1628;
+    border: 1px solid #243650;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.protocol-fill {
+    height: 100%;
+    background: #58a6ff;
+    border-radius: 999px;
+}
+
+.protocol-percent {
+    color: #9fb1c9;
+    font-size: 13px;
+    text-align: right;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: bold;
+    background: #17243a;
+    color: #cbd8ea;
+}
+
+.badge.tcp {
+    color: #58a6ff;
+}
+
+.badge.udp {
+    color: #2ecc71;
+}
+
+.badge.icmp {
+    color: #f1c40f;
+}
+
+.findings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.alert.warning {
+    background: rgba(241, 196, 15, 0.12);
+    border: 1px solid rgba(241, 196, 15, 0.35);
+    color: #f1c40f;
+}
+
+.alert.danger {
+    background: rgba(231, 76, 60, 0.12);
+    border: 1px solid rgba(231, 76, 60, 0.35);
+    color: #ff7675;
+}
+
+.alert.success {
+    background: rgba(46, 204, 113, 0.12);
+    border: 1px solid rgba(46, 204, 113, 0.35);
+    color: #2ecc71;
+}

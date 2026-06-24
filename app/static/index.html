@@ -86,7 +86,26 @@
         <section class="grid">
             <article class="panel">
                 <h3>Distribuição de protocolos</h3>
-                <div class="placeholder">Gráfico de protocolos</div>
+                <div id="protocols-list" class="bar-list">
+                    <div class="placeholder">Aguardando dados...</div>
+                </div>
+            </article>
+
+            <article class="panel">
+                <h3>Direção do tráfego</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Métrica</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody id="traffic-direction-table-body">
+                        <tr>
+                            <td colspan="2">Aguardando dados...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </article>
 
             <article class="panel">
@@ -96,10 +115,30 @@
                         <tr>
                             <th>IP</th>
                             <th>Hostname</th>
+                            <th>Enviados</th>
+                            <th>Recebidos</th>
                             <th>Total</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="endpoints-table-body">
+                        <tr>
+                            <td colspan="5">Aguardando dados...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </article>
+
+            <article class="panel">
+                <h3>Top Fluxos</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Endpoint A</th>
+                            <th>Endpoint B</th>
+                            <th>Pacotes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="flows-table-body">
                         <tr>
                             <td colspan="3">Aguardando dados...</td>
                         </tr>
@@ -113,22 +152,76 @@
                     <thead>
                         <tr>
                             <th>Porta</th>
+                            <th>Protocolo</th>
                             <th>Serviço</th>
                             <th>Pacotes</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="ports-table-body">
                         <tr>
-                            <td colspan="3">Aguardando dados...</td>
+                            <td colspan="4">Aguardando dados...</td>
                         </tr>
                     </tbody>
                 </table>
             </article>
 
             <article class="panel">
+                <h3>Consultas DNS</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Domínio</th>
+                            <th>Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dns-table-body">
+                        <tr>
+                            <td colspan="2">Aguardando dados...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </article>
+
+            <article class="panel">
+                <h3>TCP Flags</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Flag</th>
+                            <th>Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tcp-flags-table-body">
+                        <tr>
+                            <td colspan="2">Aguardando dados...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </article>
+
+            <article class="panel">
+                <h3>Tamanho dos pacotes</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Métrica</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody id="packet-lengths-table-body">
+                        <tr>
+                            <td colspan="2">Aguardando dados...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </article>
+
+            <article class="panel full-width">
                 <h3>Alertas recentes</h3>
-                <div class="alert empty">
-                    Nenhum alerta detectado.
+                <div id="findings-list" class="findings-list">
+                    <div class="alert empty">
+                        Nenhum alerta detectado.
+                    </div>
                 </div>
             </article>
         </section>
