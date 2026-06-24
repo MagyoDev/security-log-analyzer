@@ -366,10 +366,15 @@ async function stopCapture() {
     updateDashboard(data.state);
 }
 
+function exportReport(format) {
+    const exportUrl = `/api/export/${format}`;
+    window.location.href = exportUrl;
+}
 
 function setupEventListeners() {
     const startButton = document.getElementById("start-capture-button");
     const stopButton = document.getElementById("stop-capture-button");
+    const exportButtons = document.querySelectorAll(".export-button");
 
     startButton.addEventListener("click", function () {
         startCapture();
@@ -377,6 +382,13 @@ function setupEventListeners() {
 
     stopButton.addEventListener("click", function () {
         stopCapture();
+    });
+
+    exportButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+            const format = button.dataset.format;
+            exportReport(format);
+        });
     });
 }
 
