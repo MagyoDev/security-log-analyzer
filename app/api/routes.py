@@ -14,14 +14,12 @@ from app.schemas.capture import CaptureRequest
 
 router = APIRouter(prefix="/api")
 
-
 @router.get("/status")
 def get_status():
     """
     Retorna o estado atual da aplicação.
     """
     return app_state.get_snapshot()
-
 
 @router.get("/report")
 def get_report():
@@ -30,7 +28,6 @@ def get_report():
     """
     snapshot = app_state.get_snapshot()
     return snapshot["report"]
-
 
 @router.post("/start")
 def start_capture(request: CaptureRequest):
@@ -48,7 +45,6 @@ def start_capture(request: CaptureRequest):
         "state": app_state.get_snapshot(),
     }
 
-
 @router.post("/stop")
 def stop_capture():
     """
@@ -60,7 +56,6 @@ def stop_capture():
         "message": result["message"],
         "state": app_state.get_snapshot(),
     }
-
 
 @router.post("/reset")
 def reset_state():
@@ -107,7 +102,6 @@ def export_markdown():
         media_type="text/markdown",
     )
 
-
 @router.get("/export/excel")
 def export_excel():
     """
@@ -123,7 +117,6 @@ def export_excel():
         filename=file_path.name,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
-
 
 @router.get("/export/csv")
 def export_csv():

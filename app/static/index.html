@@ -38,10 +38,18 @@
             </select>
 
             <label>Pacotes</label>
-            <input id="packet-count" type="number" value="100" />
+            <input id="packet-count" type="number" value="100" min="1" max="10000" />
 
             <button id="start-capture-button">Iniciar captura</button>
             <button id="stop-capture-button" class="secondary-button">Parar captura</button>
+            <button id="reset-button" class="danger-button">Resetar painel</button>
+
+            <div class="capture-status-panel">
+                <p><strong>Status:</strong> <span id="capture-status-label">Aguardando</span></p>
+                <p><strong>Início:</strong> <span id="started-at">-</span></p>
+                <p><strong>Fim:</strong> <span id="stopped-at">-</span></p>
+                <p><strong>Erro:</strong> <span id="error-message">-</span></p>
+            </div>
         </section>
 
         <section class="export-box">

@@ -13,10 +13,12 @@ class AppState:
     def __init__(self):
         self.lock = Lock()
         self.is_capturing = False
+        self.status = "idle"
         self.capture_mode = "fixed"
         self.packet_limit = 100
         self.started_at = None
         self.stopped_at = None
+        self.error_message = None
         self.report = self._empty_report()
 
     def _empty_report(self):
@@ -30,7 +32,7 @@ class AppState:
                 "local_ip": None,
                 "inbound": 0,
                 "outbound": 0,
-                "internal_or_other": 0
+                "internal_or_other": 0,
             },
             "protocols": [],
             "application_protocols": {},
@@ -46,7 +48,7 @@ class AppState:
                 "buckets": {},
             },
             "findings": [
-                "Nenhuma alerta detectado."
+                "Nenhum alerta detectado."
             ],
         }
     
@@ -56,10 +58,12 @@ class AppState:
         """
         with self.lock:
             self.is_capturing = True
+            self.status = "capturing"
             self.capture_mode = mode
             self.packet_limit = packet_limit
-            self.started_at = datetime.now().isoformat(timespec='seconds')
+            self.started_at = datetime.now().isoformat(timespec="seconds")
             self.stopped_at = None
+            self.error_message = None
             self.report = self._empty_report()
 
     def stop_capture(self):
@@ -68,7 +72,18 @@ class AppState:
         """
         with self.lock:
             self.is_capturing = False
-            self.stopped_at = datetime.now().isoformat(timespec='seconds')
+            self.status = "completed"
+            self.stopped_at = datetime.now().isoformat(timespec="seconds")
+
+    def set_error(self, message: str):
+        """
+        Marca a aplicação em estado de erro.
+        """
+        with self.lock:
+            self.is_capturing = False
+            self.status = "error"
+            self.error_message = message
+            self.stopped_at = datetime.now().isoformat(timespec="seconds")
 
     def reset(self):
         """
@@ -76,10 +91,12 @@ class AppState:
         """
         with self.lock:
             self.is_capturing = False
+            self.status = "idle"
             self.capture_mode = "fixed"
             self.packet_limit = 100
             self.started_at = None
             self.stopped_at = None
+            self.error_message = None
             self.report = self._empty_report()
 
     def update_report(self, report: dict):
@@ -96,10 +113,12 @@ class AppState:
         with self.lock:
             return {
                 "is_capturing": self.is_capturing,
+                "status": self.status,
                 "capture_mode": self.capture_mode,
                 "packet_limit": self.packet_limit,
                 "started_at": self.started_at,
                 "stopped_at": self.stopped_at,
+                "error_message": self.error_message,
                 "report": self.report,
             }
         

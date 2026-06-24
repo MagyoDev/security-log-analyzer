@@ -38,6 +38,12 @@ class CaptureService:
                 "message": "Capture is already running",
             }
 
+        if mode not in ["fixed", "continuous"]:
+            return {
+                "started": False,
+                "message": "Invalid capture mode",
+            }
+
         self.analyzer.reset()
         self.stop_event.clear()
 
@@ -65,11 +71,19 @@ class CaptureService:
         """
         Solicita a parada da captura.
         """
+        snapshot = app_state.get_snapshot()
+
+        if not snapshot["is_capturing"]:
+            return {
+                "stopped": False,
+                "message": "No capture is running",
+            }
+
         self.stop_event.set()
-        app_state.stop_capture()
 
         report = self.analyzer.build_report()
         app_state.update_report(report)
+        app_state.stop_capture()
 
         return {
             "stopped": True,
@@ -80,6 +94,8 @@ class CaptureService:
         """
         Ela executa o sniff do Scapy e atualiza o relatório ao terminar.
         """
+        had_error = False
+
         try:
             sniff(
                 prn=self._handle_packet,
@@ -90,19 +106,22 @@ class CaptureService:
             )
 
         except PermissionError:
+            had_error = True
             self._set_error_report(
                 "Permissão negada. Execute o programa como administrador/root."
             )
 
         except Exception as error:
+            had_error = True
             self._set_error_report(
                 f"Erro durante a captura: {error}"
             )
 
         finally:
-            report = self.analyzer.build_report()
-            app_state.update_report(report)
-            app_state.stop_capture()
+            if not had_error:
+                report = self.analyzer.build_report()
+                app_state.update_report(report)
+                app_state.stop_capture()
 
     def _handle_packet(self, packet):
         """
@@ -126,8 +145,9 @@ class CaptureService:
         report = self.analyzer.build_report()
         report["risk_level"] = "Erro"
         report["findings"] = [message]
+
         app_state.update_report(report)
-        app_state.stop_capture()
+        app_state.set_error(message)
 
 
 capture_service = CaptureService()

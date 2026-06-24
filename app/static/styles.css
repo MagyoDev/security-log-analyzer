@@ -371,3 +371,70 @@ th {
     background: #17243a;
     color: #58a6ff;
 }
+
+.danger-button {
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+    border: 1px solid rgba(231, 76, 60, 0.45);
+    border-radius: 8px;
+    background: rgba(231, 76, 60, 0.12);
+    color: #ff7675;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.danger-button:hover {
+    background: rgba(231, 76, 60, 0.22);
+}
+
+button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.capture-status-panel {
+    margin-top: 16px;
+    padding: 12px;
+    background: #0b1628;
+    border: 1px solid #243650;
+    border-radius: 10px;
+}
+
+.capture-status-panel p {
+    margin: 6px 0;
+    color: #9fb1c9;
+    font-size: 13px;
+}
+
+.capture-status-panel strong {
+    color: #e5eefc;
+}
+
+.status-label {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.status-label.idle {
+    background: rgba(149, 165, 166, 0.18);
+    color: #bdc3c7;
+}
+
+.status-label.capturing {
+    background: rgba(46, 204, 113, 0.18);
+    color: #2ecc71;
+}
+
+.status-label.completed {
+    background: rgba(88, 166, 255, 0.18);
+    color: #58a6ff;
+}
+
+.status-label.error {
+    background: rgba(231, 76, 60, 0.18);
+    color: #ff7675;
+}

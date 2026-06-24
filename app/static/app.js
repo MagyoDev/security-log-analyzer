@@ -28,6 +28,9 @@ function updateDashboard(state) {
     const report = state.report;
 
     updateCards(state, report);
+    updateCaptureControls(state);
+    updateCaptureStatusPanel(state);
+
     renderTrafficDirection(report.direction_summary);
     renderProtocols(report.protocols);
     renderEndpoints(report.endpoints);
@@ -37,6 +40,58 @@ function updateDashboard(state) {
     renderTcpFlags(report.tcp_flags);
     renderPacketLengths(report.packet_lengths);
     renderFindings(report.findings);
+}
+
+
+function translateStatus(status) {
+    const translations = {
+        idle: "Aguardando",
+        capturing: "Capturando",
+        completed: "Finalizada",
+        error: "Erro",
+    };
+
+    return translations[status] || "Desconhecido";
+}
+
+
+function updateCaptureControls(state) {
+    const startButton = document.getElementById("start-capture-button");
+    const stopButton = document.getElementById("stop-capture-button");
+    const resetButton = document.getElementById("reset-button");
+    const captureModeElement = document.getElementById("capture-mode");
+    const packetCountElement = document.getElementById("packet-count");
+
+    if (state.is_capturing) {
+        startButton.disabled = true;
+        stopButton.disabled = false;
+        resetButton.disabled = true;
+        captureModeElement.disabled = true;
+        packetCountElement.disabled = true;
+    } else {
+        startButton.disabled = false;
+        stopButton.disabled = true;
+        resetButton.disabled = false;
+        captureModeElement.disabled = false;
+        packetCountElement.disabled = false;
+    }
+}
+
+
+function updateCaptureStatusPanel(state) {
+    const statusLabelElement = document.getElementById("capture-status-label");
+    const startedAtElement = document.getElementById("started-at");
+    const stoppedAtElement = document.getElementById("stopped-at");
+    const errorMessageElement = document.getElementById("error-message");
+
+    const translatedStatus = translateStatus(state.status);
+
+    statusLabelElement.textContent = translatedStatus;
+    statusLabelElement.className = `status-label ${state.status}`;
+
+    startedAtElement.textContent = state.started_at || "-";
+    stoppedAtElement.textContent = state.stopped_at || "-";
+    errorMessageElement.textContent = state.error_message || "-";
 }
 
 
@@ -59,10 +114,12 @@ function updateCards(state, report) {
         riskDescriptionElement.textContent = "Nenhum alerta crítico";
     }
 
-    if (state.is_capturing) {
+    if (state.status === "capturing") {
         captureStatusTextElement.textContent = "Captura em andamento";
-    } else if (state.stopped_at) {
+    } else if (state.status === "completed") {
         captureStatusTextElement.textContent = "Captura finalizada";
+    } else if (state.status === "error") {
+        captureStatusTextElement.textContent = "Erro na captura";
     } else {
         captureStatusTextElement.textContent = "Aguardando captura";
     }
@@ -341,6 +398,11 @@ async function startCapture() {
     const mode = modeElement.value;
     const packetLimit = Number(packetCountElement.value);
 
+    if (mode === "fixed" && (!packetLimit || packetLimit < 1)) {
+        alert("Informe uma quantidade válida de pacotes.");
+        return;
+    }
+
     const response = await fetch("/api/start", {
         method: "POST",
         headers: {
@@ -366,14 +428,27 @@ async function stopCapture() {
     updateDashboard(data.state);
 }
 
+
+async function resetDashboard() {
+    const response = await fetch("/api/reset", {
+        method: "POST"
+    });
+
+    const data = await response.json();
+    updateDashboard(data.state);
+}
+
+
 function exportReport(format) {
     const exportUrl = `/api/export/${format}`;
     window.location.href = exportUrl;
 }
 
+
 function setupEventListeners() {
     const startButton = document.getElementById("start-capture-button");
     const stopButton = document.getElementById("stop-capture-button");
+    const resetButton = document.getElementById("reset-button");
     const exportButtons = document.querySelectorAll(".export-button");
 
     startButton.addEventListener("click", function () {
@@ -382,6 +457,10 @@ function setupEventListeners() {
 
     stopButton.addEventListener("click", function () {
         stopCapture();
+    });
+
+    resetButton.addEventListener("click", function () {
+        resetDashboard();
     });
 
     exportButtons.forEach(function (button) {
