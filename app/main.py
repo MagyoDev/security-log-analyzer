@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import router as api_router
-
+from app.core.database import initialize_database
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -14,6 +14,8 @@ app = FastAPI(
     description="Local network traffic analyzer with FastAPI and Scapy",
     version="0.1.0",
 )
+
+initialize_database()
 
 app.mount(
     "/static",

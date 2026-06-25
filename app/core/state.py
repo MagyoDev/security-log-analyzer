@@ -2,6 +2,12 @@ from datetime import datetime
 from threading import Lock
 from uuid import uuid4
 
+from app.core.database import (
+    clear_capture_history,
+    load_capture_history,
+    load_capture_report,
+    save_capture_history_item,
+)
 
 class AppState:
     """
@@ -12,7 +18,7 @@ class AppState:
     def __init__(self):
         self.lock = Lock()
         self.history_limit = 20
-        self.history = []
+        self.history = load_capture_history(self.history_limit)
         self.reset()
 
     def _empty_report(self):
@@ -74,16 +80,14 @@ class AppState:
 
     def _save_to_history(self):
         """
-        Salva a captura atual no histórico.
+        Salva a captura atual no histórico em memória e no banco SQLite.
         """
         if self.current_capture_saved:
             return
 
         history_item = self._build_history_item()
-
-        self.history.insert(0, history_item)
-        self.history = self.history[:self.history_limit]
-
+        save_capture_history_item(history_item)
+        self.history = load_capture_history(self.history_limit)
         self.current_capture_saved = True
 
     def start_capture(
@@ -178,9 +182,10 @@ class AppState:
 
     def clear_history(self):
         """
-        Limpa o histórico de capturas.
+        Limpa o histórico de capturas da memória e do banco SQLite.
         """
         with self.lock:
+            clear_capture_history()
             self.history = []
 
     def update_report(self, report: dict):
@@ -245,9 +250,7 @@ class AppState:
         Retorna o relatório completo de uma captura específica.
         """
         with self.lock:
-            for item in self.history:
-                if item["capture_id"] == capture_id:
-                    return item["report"]
+            return load_capture_report(capture_id)
 
         return None
 

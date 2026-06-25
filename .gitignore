@@ -28,3 +28,11 @@ reports/*
 # Keep folder structure
 !exports/.gitkeep
 !reports/.gitkeep
+
+# Local database
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+
+# Keep data folder
+!data/.gitkeep
