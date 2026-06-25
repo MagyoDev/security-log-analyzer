@@ -140,27 +140,6 @@ class AppState:
             self.stopped_at = datetime.now().isoformat(timespec="seconds")
             self._save_to_history()
 
-    def stop_capture(self):
-        """
-        Mantido por compatibilidade.
-        A finalização real deve ser feita com finish_capture().
-        """
-        with self.lock:
-            self.is_capturing = False
-            self.status = "completed"
-            self.stopped_at = datetime.now().isoformat(timespec="seconds")
-
-    def set_error(self, message: str):
-        """
-        Mantido por compatibilidade.
-        Erros de captura devem usar fail_capture().
-        """
-        with self.lock:
-            self.is_capturing = False
-            self.status = "error"
-            self.error_message = message
-            self.stopped_at = datetime.now().isoformat(timespec="seconds")
-
     def reset(self):
         """
         Reseta apenas a captura atual.

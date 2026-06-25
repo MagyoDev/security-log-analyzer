@@ -1,7 +1,5 @@
- 
 fastapi
 uvicorn[standard]
 scapy
-rich
 pandas
 openpyxl
