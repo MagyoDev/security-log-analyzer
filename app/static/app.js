@@ -15,12 +15,15 @@ async function checkApiStatus() {
     }
 }
 
+
 async function loadNetworkInterfaces() {
     const interfaceSelect = document.getElementById("network-interface");
 
     try {
         const response = await fetch("/api/interfaces");
         const data = await response.json();
+
+        interfaceSelect.innerHTML = `<option value="">Interface padrão</option>`;
 
         data.interfaces.forEach(function (iface) {
             const option = document.createElement("option");
@@ -35,6 +38,7 @@ async function loadNetworkInterfaces() {
     }
 }
 
+
 async function fetchStatus() {
     const response = await fetch("/api/status");
     const data = await response.json();
@@ -42,58 +46,6 @@ async function fetchStatus() {
     updateDashboard(data);
 }
 
-function formatFilterText(item) {
-    const filters = [];
-
-    if (item.protocol_filter) {
-        filters.push(`Protocolo: ${item.protocol_filter}`);
-    }
-
-    if (item.host_filter) {
-        filters.push(`Host: ${item.host_filter}`);
-    }
-
-    if (filters.length === 0) {
-        return "Nenhum";
-    }
-
-    return filters.join(" | ");
-}
-
-function renderHistory(history) {
-    const tableBody = document.getElementById("history-table-body");
-
-    tableBody.innerHTML = "";
-
-    if (!history || history.length === 0) {
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="9">Nenhuma captura no histórico.</td>
-            </tr>
-        `;
-        return;
-    }
-
-    history.forEach(function (item) {
-        const tr = document.createElement("tr");
-        const translatedStatus = translateStatus(item.status);
-        const filterText = formatFilterText(item);
-
-        tr.innerHTML = `
-            <td>${item.capture_id}</td>
-            <td><span class="status-pill ${item.status}">${translatedStatus}</span></td>
-            <td>${item.capture_mode}</td>
-            <td>${item.total_packets}</td>
-            <td>${item.risk_level}</td>
-            <td>${item.iface || "Padrão"}</td>
-            <td>${filterText}</td>
-            <td>${item.started_at || "-"}</td>
-            <td>${item.stopped_at || "-"}</td>
-        `;
-
-        tableBody.appendChild(tr);
-    });
-}
 
 function updateDashboard(state) {
     const report = state.report;
@@ -111,7 +63,7 @@ function updateDashboard(state) {
     renderTcpFlags(report.tcp_flags);
     renderPacketLengths(report.packet_lengths);
     renderFindings(report.findings);
-    renderHistory(state.history);
+    renderHistory(state.history || []);
 }
 
 
@@ -125,7 +77,6 @@ function translateStatus(status) {
 
     return translations[status] || "Desconhecido";
 }
-
 
 function updateCaptureControls(state) {
     const startButton = document.getElementById("start-capture-button");
@@ -158,6 +109,7 @@ function updateCaptureControls(state) {
     }
 }
 
+
 function updateCaptureStatusPanel(state) {
     const statusLabelElement = document.getElementById("capture-status-label");
     const activeInterfaceElement = document.getElementById("active-interface");
@@ -183,16 +135,13 @@ function updateCaptureStatusPanel(state) {
         filters.push(`Host: ${state.host_filter}`);
     }
 
-    if (filters.length === 0) {
-        activeFilterElement.textContent = "Nenhum";
-    } else {
-        activeFilterElement.textContent = filters.join(" | ");
-    }
+    activeFilterElement.textContent = filters.length === 0 ? "Nenhum" : filters.join(" | ");
 
     startedAtElement.textContent = state.started_at || "-";
     stoppedAtElement.textContent = state.stopped_at || "-";
     errorMessageElement.textContent = state.error_message || "-";
 }
+
 
 function updateCards(state, report) {
     const totalPacketsElement = document.getElementById("total-packets");
@@ -230,11 +179,18 @@ function renderTrafficDirection(directionSummary) {
 
     tableBody.innerHTML = "";
 
+    const summary = directionSummary || {
+        local_ip: null,
+        inbound: 0,
+        outbound: 0,
+        internal_or_other: 0,
+    };
+
     const rows = [
-        ["IP local", directionSummary.local_ip || "N/A"],
-        ["Entrada", directionSummary.inbound],
-        ["Saída", directionSummary.outbound],
-        ["Interno/Outro", directionSummary.internal_or_other],
+        ["IP local", summary.local_ip || "N/A"],
+        ["Entrada", summary.inbound],
+        ["Saída", summary.outbound],
+        ["Interno/Outro", summary.internal_or_other],
     ];
 
     rows.forEach(function (row) {
@@ -248,7 +204,6 @@ function renderTrafficDirection(directionSummary) {
         tableBody.appendChild(tr);
     });
 }
-
 
 function renderProtocols(protocols) {
     const container = document.getElementById("protocols-list");
@@ -422,16 +377,22 @@ function renderTcpFlags(tcpFlags) {
     });
 }
 
-
 function renderPacketLengths(packetLengths) {
     const tableBody = document.getElementById("packet-lengths-table-body");
 
     tableBody.innerHTML = "";
 
+    const summary = packetLengths || {
+        min: 0,
+        max: 0,
+        average: 0,
+        buckets: {},
+    };
+
     const rows = [
-        ["Menor pacote", `${packetLengths.min} bytes`],
-        ["Maior pacote", `${packetLengths.max} bytes`],
-        ["Média", `${packetLengths.average} bytes`],
+        ["Menor pacote", `${summary.min} bytes`],
+        ["Maior pacote", `${summary.max} bytes`],
+        ["Média", `${summary.average} bytes`],
     ];
 
     rows.forEach(function (row) {
@@ -445,7 +406,7 @@ function renderPacketLengths(packetLengths) {
         tableBody.appendChild(tr);
     });
 
-    const buckets = Object.entries(packetLengths.buckets || {});
+    const buckets = Object.entries(summary.buckets || {});
 
     buckets.forEach(function ([range, count]) {
         const tr = document.createElement("tr");
@@ -488,6 +449,62 @@ function renderFindings(findings) {
         container.appendChild(div);
     });
 }
+
+
+function formatFilterText(item) {
+    const filters = [];
+
+    if (item.protocol_filter) {
+        filters.push(`Protocolo: ${item.protocol_filter}`);
+    }
+
+    if (item.host_filter) {
+        filters.push(`Host: ${item.host_filter}`);
+    }
+
+    if (filters.length === 0) {
+        return "Nenhum";
+    }
+
+    return filters.join(" | ");
+}
+
+
+function renderHistory(history) {
+    const tableBody = document.getElementById("history-table-body");
+
+    tableBody.innerHTML = "";
+
+    if (!history || history.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="9">Nenhuma captura no histórico.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    history.forEach(function (item) {
+        const tr = document.createElement("tr");
+        const translatedStatus = translateStatus(item.status);
+        const filterText = formatFilterText(item);
+
+        tr.innerHTML = `
+            <td>${item.capture_id}</td>
+            <td><span class="status-pill ${item.status}">${translatedStatus}</span></td>
+            <td>${item.capture_mode}</td>
+            <td>${item.total_packets}</td>
+            <td>${item.risk_level}</td>
+            <td>${item.iface || "Padrão"}</td>
+            <td>${filterText}</td>
+            <td>${item.started_at || "-"}</td>
+            <td>${item.stopped_at || "-"}</td>
+        `;
+
+        tableBody.appendChild(tr);
+    });
+}
+
 
 async function startCapture() {
     const modeElement = document.getElementById("capture-mode");
@@ -545,6 +562,7 @@ async function resetDashboard() {
     updateDashboard(data.state);
 }
 
+
 async function clearHistory() {
     const confirmed = confirm("Deseja limpar o histórico de capturas?");
 
@@ -560,10 +578,12 @@ async function clearHistory() {
     fetchStatus();
 }
 
+
 function exportReport(format) {
     const exportUrl = `/api/export/${format}`;
     window.location.href = exportUrl;
 }
+
 
 function setupEventListeners() {
     const startButton = document.getElementById("start-capture-button");
@@ -597,9 +617,69 @@ function setupEventListeners() {
 }
 
 
+function setupLayoutNavigation() {
+    const sidebar = document.getElementById("sidebar");
+    const sidebarToggle = document.getElementById("sidebar-toggle");
+    const navLinks = document.querySelectorAll(".nav-link");
+
+    sidebarToggle.addEventListener("click", function () {
+        if (window.innerWidth <= 760) {
+            sidebar.classList.toggle("open");
+        } else {
+            document.body.classList.toggle("sidebar-collapsed");
+            sidebar.classList.toggle("collapsed");
+        }
+    });
+
+    navLinks.forEach(function (link) {
+        link.addEventListener("click", function () {
+            navLinks.forEach(function (item) {
+                item.classList.remove("active");
+            });
+
+            link.classList.add("active");
+
+            if (window.innerWidth <= 760) {
+                sidebar.classList.remove("open");
+            }
+        });
+    });
+}
+
+
+function setupThemeToggle() {
+    const themeToggle = document.getElementById("theme-toggle");
+    const savedTheme = localStorage.getItem("sla-theme") || "light";
+
+    document.body.setAttribute("data-theme", savedTheme);
+
+    if (savedTheme === "dark") {
+        themeToggle.textContent = "Modo claro";
+    } else {
+        themeToggle.textContent = "Modo noturno";
+    }
+
+    themeToggle.addEventListener("click", function () {
+        const currentTheme = document.body.getAttribute("data-theme");
+        const nextTheme = currentTheme === "dark" ? "light" : "dark";
+
+        document.body.setAttribute("data-theme", nextTheme);
+        localStorage.setItem("sla-theme", nextTheme);
+
+        if (nextTheme === "dark") {
+            themeToggle.textContent = "Modo claro";
+        } else {
+            themeToggle.textContent = "Modo noturno";
+        }
+    });
+}
+
+
 checkApiStatus();
 loadNetworkInterfaces();
 fetchStatus();
 setupEventListeners();
+setupLayoutNavigation();
+setupThemeToggle();
 
 setInterval(fetchStatus, 2000);

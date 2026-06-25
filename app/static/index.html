@@ -6,296 +6,501 @@
     <title>S.L.A — Security Log Analyzer</title>
     <link rel="stylesheet" href="/static/styles.css" />
 </head>
-<body>
-    <aside class="sidebar">
-        <div class="brand">
-            <div class="brand-icon">🛡️</div>
-            <div>
-                <h1>S.L.A</h1>
-                <p>Security Log Analyzer</p>
+
+<body data-theme="light">
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="brand">
+                <div class="brand-icon">SLA</div>
+
+                <div class="brand-text">
+                    <h1>S.L.A</h1>
+                    <p>Security Log Analyzer</p>
+                </div>
             </div>
+
+            <button id="sidebar-toggle" class="icon-button menu-toggle" type="button" aria-label="Alternar menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
 
-        <nav class="menu">
-            <a class="active" href="#">Dashboard</a>
-            <a href="#">Endpoints</a>
-            <a href="#">Fluxos</a>
-            <a href="#">Protocolos</a>
-            <a href="#">Portas</a>
-            <a href="#">DNS</a>
-            <a href="#">TCP Flags</a>
-            <a href="#">Alertas</a>
-            <a href="#">Exportações</a>
+        <nav class="sidebar-menu">
+            <a href="#overview" class="nav-link active">
+                <span class="nav-code">DB</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+
+            <a href="#capture" class="nav-link">
+                <span class="nav-code">CP</span>
+                <span class="nav-text">Captura</span>
+            </a>
+
+            <a href="#traffic" class="nav-link">
+                <span class="nav-code">TR</span>
+                <span class="nav-text">Tráfego</span>
+            </a>
+
+            <a href="#endpoints" class="nav-link">
+                <span class="nav-code">EP</span>
+                <span class="nav-text">Endpoints</span>
+            </a>
+
+            <a href="#network-details" class="nav-link">
+                <span class="nav-code">DT</span>
+                <span class="nav-text">Detalhes</span>
+            </a>
+
+            <a href="#findings" class="nav-link">
+                <span class="nav-code">AL</span>
+                <span class="nav-text">Alertas</span>
+            </a>
+
+            <a href="#history" class="nav-link">
+                <span class="nav-code">HS</span>
+                <span class="nav-text">Histórico</span>
+            </a>
+
+            <a href="#exports" class="nav-link">
+                <span class="nav-code">EX</span>
+                <span class="nav-text">Exportações</span>
+            </a>
         </nav>
 
-        <section class="capture-box">
-            <h2>Controle de captura</h2>
-
-            <label>Modo</label>
-            <select id="capture-mode">
-                <option value="fixed">Quantidade definida</option>
-                <option value="continuous">Contínuo</option>
-            </select>
-
-            <label>Pacotes</label>
-            <input id="packet-count" type="number" value="100" min="1" max="10000" />
-
-            <label>Interface</label>
-            <select id="network-interface">
-                <option value="">Interface padrão</option>
-            </select>
-
-            <label>Filtro de protocolo</label>
-            <select id="protocol-filter">
-                <option value="">Todos</option>
-                <option value="tcp">TCP</option>
-                <option value="udp">UDP</option>
-                <option value="icmp">ICMP</option>
-                <option value="dns">DNS</option>
-                <option value="http">HTTP</option>
-                <option value="https">HTTPS</option>
-            </select>
-
-            <label>Filtro de host</label>
-            <input id="host-filter" type="text" placeholder="Ex: 192.168.1.1" />
-
-            <button id="start-capture-button">Iniciar captura</button>
-            <button id="stop-capture-button" class="secondary-button">Parar captura</button>
-            <button id="reset-button" class="danger-button">Resetar painel</button>
-
-            <div class="capture-status-panel">
-                <p><strong>Status:</strong> <span id="capture-status-label">Aguardando</span></p>
-                <p><strong>Interface:</strong> <span id="active-interface">Padrão</span></p>
-                <p><strong>Filtro:</strong> <span id="active-filter">Nenhum</span></p>
-                <p><strong>Início:</strong> <span id="started-at">-</span></p>
-                <p><strong>Fim:</strong> <span id="stopped-at">-</span></p>
-                <p><strong>Erro:</strong> <span id="error-message">-</span></p>
-            </div>
-        </section>
-
-        <section class="export-box">
-            <h2>Exportações</h2>
-
-            <button class="export-button" data-format="json">Exportar JSON</button>
-            <button class="export-button" data-format="markdown">Exportar Markdown</button>
-            <button class="export-button" data-format="excel">Exportar Excel</button>
-            <button class="export-button" data-format="csv">Exportar CSV</button>
-        </section>
-    </aside>
-
-    <main class="content">
-        <header class="topbar">
-            <div>
-                <h2>Dashboard</h2>
-                <p>Visão geral do tráfego de rede local</p>
-            </div>
-
-            <div id="api-status" class="status">
+        <div class="sidebar-footer">
+            <div id="api-status" class="api-status">
                 Verificando API...
             </div>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <span class="eyebrow">Local Network Analysis</span>
+                <h2>Security Log Analyzer</h2>
+                <p>Captura, análise e visualização local de tráfego de rede.</p>
+            </div>
+
+            <div class="topbar-actions">
+                <button id="theme-toggle" class="theme-toggle-button" type="button">
+                    Modo noturno
+                </button>
+
+                <a href="/docs" target="_blank" class="link-button">API Docs</a>
+            </div>
         </header>
-        
-        <section class="cards">
-            <article class="card">
-                <p>Pacotes capturados</p>
-                <strong id="total-packets">0</strong>
-                <span id="capture-status-text">Aguardando captura</span>
-            </article>
 
-            <article class="card">
-                <p>Endpoints únicos</p>
-                <strong id="total-endpoints">0</strong>
-                <span>Nenhum endpoint identificado</span>
-            </article>
+        <section id="overview" class="section">
+            <div class="section-header">
+                <div>
+                    <h3>Visão geral</h3>
+                    <p>Resumo da captura atual e do nível de risco identificado.</p>
+                </div>
+            </div>
 
-            <article class="card">
-                <p>Fluxos</p>
-                <strong id="total-flows">0</strong>
-                <span>Nenhum fluxo identificado</span>
-            </article>
+            <div class="cards">
+                <article class="card">
+                    <span>Pacotes capturados</span>
+                    <strong id="total-packets">0</strong>
+                    <small id="capture-status-text">Aguardando captura</small>
+                </article>
 
-            <article class="card risk">
-                <p>Nível de risco</p>
-                <strong id="risk-level">Baixo</strong>
-                <span id="risk-description">Nenhum alerta crítico</span>
-            </article>
+                <article class="card">
+                    <span>Endpoints únicos</span>
+                    <strong id="total-endpoints">0</strong>
+                    <small>Hosts identificados na captura</small>
+                </article>
+
+                <article class="card">
+                    <span>Fluxos</span>
+                    <strong id="total-flows">0</strong>
+                    <small>Comunicações entre endpoints</small>
+                </article>
+
+                <article class="card risk-card">
+                    <span>Nível de risco</span>
+                    <strong id="risk-level">Baixo</strong>
+                    <small id="risk-description">Nenhum alerta crítico</small>
+                </article>
+            </div>
         </section>
 
-        <section class="grid">
-            <article class="panel">
-                <h3>Distribuição de protocolos</h3>
-                <div id="protocols-list" class="bar-list">
-                    <div class="placeholder">Aguardando dados...</div>
+        <section id="capture" class="section">
+            <div class="section-header">
+                <div>
+                    <h3>Controle de captura</h3>
+                    <p>Configure modo, interface, filtros e execute a captura.</p>
                 </div>
-            </article>
+            </div>
 
-            <article class="panel">
-                <h3>Direção do tráfego</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Métrica</th>
-                            <th>Valor</th>
-                        </tr>
-                    </thead>
-                    <tbody id="traffic-direction-table-body">
-                        <tr>
-                            <td colspan="2">Aguardando dados...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </article>
+            <div class="layout-two-columns">
+                <article class="panel">
+                    <h4>Configuração</h4>
 
-            <article class="panel">
-                <h3>Top Endpoints</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>IP</th>
-                            <th>Hostname</th>
-                            <th>Enviados</th>
-                            <th>Recebidos</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="endpoints-table-body">
-                        <tr>
-                            <td colspan="5">Aguardando dados...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </article>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="capture-mode">Modo</label>
+                            <select id="capture-mode">
+                                <option value="fixed">Quantidade definida</option>
+                                <option value="continuous">Contínuo</option>
+                            </select>
+                        </div>
 
-            <article class="panel">
-                <h3>Top Fluxos</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Endpoint A</th>
-                            <th>Endpoint B</th>
-                            <th>Pacotes</th>
-                        </tr>
-                    </thead>
-                    <tbody id="flows-table-body">
-                        <tr>
-                            <td colspan="3">Aguardando dados...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </article>
+                        <div class="field">
+                            <label for="packet-count">Pacotes</label>
+                            <input id="packet-count" type="number" value="100" min="1" max="10000" />
+                        </div>
 
-            <article class="panel">
-                <h3>Top Portas</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Porta</th>
-                            <th>Protocolo</th>
-                            <th>Serviço</th>
-                            <th>Pacotes</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ports-table-body">
-                        <tr>
-                            <td colspan="4">Aguardando dados...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </article>
+                        <div class="field">
+                            <label for="network-interface">Interface</label>
+                            <select id="network-interface">
+                                <option value="">Interface padrão</option>
+                            </select>
+                        </div>
 
-            <article class="panel">
-                <h3>Consultas DNS</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Domínio</th>
-                            <th>Quantidade</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dns-table-body">
-                        <tr>
-                            <td colspan="2">Aguardando dados...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </article>
+                        <div class="field">
+                            <label for="protocol-filter">Filtro de protocolo</label>
+                            <select id="protocol-filter">
+                                <option value="">Todos</option>
+                                <option value="tcp">TCP</option>
+                                <option value="udp">UDP</option>
+                                <option value="icmp">ICMP</option>
+                                <option value="dns">DNS</option>
+                                <option value="http">HTTP</option>
+                                <option value="https">HTTPS</option>
+                            </select>
+                        </div>
 
-            <article class="panel">
-                <h3>TCP Flags</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Flag</th>
-                            <th>Quantidade</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tcp-flags-table-body">
-                        <tr>
-                            <td colspan="2">Aguardando dados...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </article>
-
-            <article class="panel">
-                <h3>Tamanho dos pacotes</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Métrica</th>
-                            <th>Valor</th>
-                        </tr>
-                    </thead>
-                    <tbody id="packet-lengths-table-body">
-                        <tr>
-                            <td colspan="2">Aguardando dados...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </article>
-
-            <article class="panel full-width">
-                <div class="panel-header">
-                    <div>
-                        <h3>Histórico de capturas</h3>
-                        <p>Últimas análises realizadas nesta sessão</p>
+                        <div class="field full">
+                            <label for="host-filter">Filtro de host</label>
+                            <input id="host-filter" type="text" placeholder="Ex: 192.168.1.1" />
+                        </div>
                     </div>
 
-                    <button id="clear-history-button" class="small-danger-button">
-                        Limpar histórico
-                    </button>
+                    <div class="button-row">
+                        <button id="start-capture-button" class="primary-button" type="button">Iniciar captura</button>
+                        <button id="stop-capture-button" class="secondary-button" type="button">Parar</button>
+                        <button id="reset-button" class="danger-button" type="button">Resetar</button>
+                    </div>
+                </article>
+
+                <article class="panel">
+                    <h4>Status da captura</h4>
+
+                    <div class="status-grid">
+                        <div>
+                            <span>Status</span>
+                            <strong id="capture-status-label" class="status-label idle">Aguardando</strong>
+                        </div>
+
+                        <div>
+                            <span>Interface</span>
+                            <strong id="active-interface">Padrão</strong>
+                        </div>
+
+                        <div>
+                            <span>Filtro</span>
+                            <strong id="active-filter">Nenhum</strong>
+                        </div>
+
+                        <div>
+                            <span>Início</span>
+                            <strong id="started-at">-</strong>
+                        </div>
+
+                        <div>
+                            <span>Fim</span>
+                            <strong id="stopped-at">-</strong>
+                        </div>
+
+                        <div>
+                            <span>Erro</span>
+                            <strong id="error-message">-</strong>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+                <section id="traffic" class="section">
+            <div class="section-header">
+                <div>
+                    <h3>Análise de tráfego</h3>
+                    <p>Distribuição de protocolos e direção do tráfego capturado.</p>
                 </div>
+            </div>
 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Status</th>
-                            <th>Modo</th>
-                            <th>Pacotes</th>
-                            <th>Risco</th>
-                            <th>Interface</th>
-                            <th>Filtro</th>
-                            <th>Início</th>
-                            <th>Fim</th>
-                        </tr>
-                    </thead>
-                    <tbody id="history-table-body">
-                        <tr>
-                            <td colspan="9">Nenhuma captura no histórico.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </article>
+            <div class="layout-two-columns">
+                <article class="panel">
+                    <h4>Distribuição de protocolos</h4>
 
-            <article class="panel full-width">
-                <h3>Alertas recentes</h3>
+                    <div id="protocols-list" class="bar-list">
+                        <div class="placeholder">Aguardando dados...</div>
+                    </div>
+                </article>
+
+                <article class="panel">
+                    <h4>Direção do tráfego</h4>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Métrica</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="traffic-direction-table-body">
+                                <tr>
+                                    <td colspan="2">Aguardando dados...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section id="endpoints" class="section">
+            <div class="section-header">
+                <div>
+                    <h3>Endpoints e fluxos</h3>
+                    <p>Hosts mais ativos e comunicações identificadas.</p>
+                </div>
+            </div>
+
+            <div class="layout-two-columns wide">
+                <article class="panel">
+                    <h4>Top Endpoints</h4>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>IP</th>
+                                    <th>Hostname</th>
+                                    <th>Enviados</th>
+                                    <th>Recebidos</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="endpoints-table-body">
+                                <tr>
+                                    <td colspan="5">Aguardando dados...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+
+                <article class="panel">
+                    <h4>Top Fluxos</h4>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Endpoint A</th>
+                                    <th>Endpoint B</th>
+                                    <th>Pacotes</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="flows-table-body">
+                                <tr>
+                                    <td colspan="3">Aguardando dados...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section id="network-details" class="section">
+            <div class="section-header">
+                <div>
+                    <h3>Detalhes técnicos</h3>
+                    <p>Portas, DNS, flags TCP e tamanhos dos pacotes.</p>
+                </div>
+            </div>
+
+            <div class="grid-panels">
+                <article class="panel">
+                    <h4>Top Portas</h4>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Porta</th>
+                                    <th>Protocolo</th>
+                                    <th>Serviço</th>
+                                    <th>Pacotes</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="ports-table-body">
+                                <tr>
+                                    <td colspan="4">Aguardando dados...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+
+                <article class="panel">
+                    <h4>Consultas DNS</h4>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Domínio</th>
+                                    <th>Qtd.</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="dns-table-body">
+                                <tr>
+                                    <td colspan="2">Aguardando dados...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+
+                <article class="panel">
+                    <h4>TCP Flags</h4>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Flag</th>
+                                    <th>Quantidade</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="tcp-flags-table-body">
+                                <tr>
+                                    <td colspan="2">Aguardando dados...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+
+                <article class="panel">
+                    <h4>Tamanho dos pacotes</h4>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Métrica</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="packet-lengths-table-body">
+                                <tr>
+                                    <td colspan="2">Aguardando dados...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </div>
+        </section>
+                <section id="findings" class="section">
+            <div class="section-header">
+                <div>
+                    <h3>Alertas recentes</h3>
+                    <p>Possíveis padrões suspeitos identificados na captura.</p>
+                </div>
+            </div>
+
+            <article class="panel">
                 <div id="findings-list" class="findings-list">
-                    <div class="alert empty">
+                    <div class="alert success">
                         Nenhum alerta detectado.
                     </div>
                 </div>
             </article>
+        </section>
+
+        <section id="history" class="section">
+            <div class="section-header">
+                <div>
+                    <h3>Histórico de capturas</h3>
+                    <p>Últimas análises realizadas nesta sessão e salvas localmente.</p>
+                </div>
+
+                <button id="clear-history-button" class="small-danger-button" type="button">
+                    Limpar histórico
+                </button>
+            </div>
+
+            <article class="panel">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Status</th>
+                                <th>Modo</th>
+                                <th>Pacotes</th>
+                                <th>Risco</th>
+                                <th>Interface</th>
+                                <th>Filtro</th>
+                                <th>Início</th>
+                                <th>Fim</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="history-table-body">
+                            <tr>
+                                <td colspan="9">Nenhuma captura no histórico.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </section>
+
+        <section id="exports" class="section">
+            <div class="section-header">
+                <div>
+                    <h3>Exportações</h3>
+                    <p>Baixe o relatório atual em formatos diferentes.</p>
+                </div>
+            </div>
+
+            <div class="export-grid">
+                <button class="export-button" data-format="json" type="button">
+                    <strong>JSON</strong>
+                    <span>Estrutura completa dos dados</span>
+                </button>
+
+                <button class="export-button" data-format="markdown" type="button">
+                    <strong>Markdown</strong>
+                    <span>Relatório para documentação</span>
+                </button>
+
+                <button class="export-button" data-format="excel" type="button">
+                    <strong>Excel</strong>
+                    <span>Planilha com múltiplas abas</span>
+                </button>
+
+                <button class="export-button" data-format="csv" type="button">
+                    <strong>CSV ZIP</strong>
+                    <span>Tabelas separadas compactadas</span>
+                </button>
+            </div>
         </section>
     </main>
 
