@@ -42,6 +42,58 @@ async function fetchStatus() {
     updateDashboard(data);
 }
 
+function formatFilterText(item) {
+    const filters = [];
+
+    if (item.protocol_filter) {
+        filters.push(`Protocolo: ${item.protocol_filter}`);
+    }
+
+    if (item.host_filter) {
+        filters.push(`Host: ${item.host_filter}`);
+    }
+
+    if (filters.length === 0) {
+        return "Nenhum";
+    }
+
+    return filters.join(" | ");
+}
+
+function renderHistory(history) {
+    const tableBody = document.getElementById("history-table-body");
+
+    tableBody.innerHTML = "";
+
+    if (!history || history.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="9">Nenhuma captura no histórico.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    history.forEach(function (item) {
+        const tr = document.createElement("tr");
+        const translatedStatus = translateStatus(item.status);
+        const filterText = formatFilterText(item);
+
+        tr.innerHTML = `
+            <td>${item.capture_id}</td>
+            <td><span class="status-pill ${item.status}">${translatedStatus}</span></td>
+            <td>${item.capture_mode}</td>
+            <td>${item.total_packets}</td>
+            <td>${item.risk_level}</td>
+            <td>${item.iface || "Padrão"}</td>
+            <td>${filterText}</td>
+            <td>${item.started_at || "-"}</td>
+            <td>${item.stopped_at || "-"}</td>
+        `;
+
+        tableBody.appendChild(tr);
+    });
+}
 
 function updateDashboard(state) {
     const report = state.report;
@@ -59,6 +111,7 @@ function updateDashboard(state) {
     renderTcpFlags(report.tcp_flags);
     renderPacketLengths(report.packet_lengths);
     renderFindings(report.findings);
+    renderHistory(state.history);
 }
 
 
@@ -492,17 +545,31 @@ async function resetDashboard() {
     updateDashboard(data.state);
 }
 
+async function clearHistory() {
+    const confirmed = confirm("Deseja limpar o histórico de capturas?");
+
+    if (!confirmed) {
+        return;
+    }
+
+    const response = await fetch("/api/history/clear", {
+        method: "POST"
+    });
+
+    await response.json();
+    fetchStatus();
+}
 
 function exportReport(format) {
     const exportUrl = `/api/export/${format}`;
     window.location.href = exportUrl;
 }
 
-
 function setupEventListeners() {
     const startButton = document.getElementById("start-capture-button");
     const stopButton = document.getElementById("stop-capture-button");
     const resetButton = document.getElementById("reset-button");
+    const clearHistoryButton = document.getElementById("clear-history-button");
     const exportButtons = document.querySelectorAll(".export-button");
 
     startButton.addEventListener("click", function () {
@@ -515,6 +582,10 @@ function setupEventListeners() {
 
     resetButton.addEventListener("click", function () {
         resetDashboard();
+    });
+
+    clearHistoryButton.addEventListener("click", function () {
+        clearHistory();
     });
 
     exportButtons.forEach(function (button) {

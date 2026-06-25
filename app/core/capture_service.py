@@ -26,22 +26,6 @@ class CaptureService:
     ):
         """
         Inicia uma captura de pacotes.
-
-        mode:
-            fixed      -> captura uma quantidade definida
-            continuous -> captura até o usuário parar
-
-        packet_limit:
-            quantidade de pacotes no modo fixed
-
-        iface:
-            interface de rede, opcional
-
-        protocol_filter:
-            filtro de protocolo, como tcp, udp, icmp, dns, http ou https
-
-        host_filter:
-            IP específico para filtrar
         """
         snapshot = app_state.get_snapshot()
 
@@ -106,14 +90,13 @@ class CaptureService:
         self.stop_event.set()
 
         report = self.analyzer.build_report()
-        app_state.update_report(report)
-        app_state.stop_capture()
+        app_state.finish_capture(report)
 
         return {
             "stopped": True,
             "message": "Capture stopped",
         }
-    
+
     def _build_bpf_filter(
         self,
         protocol_filter: str | None,
@@ -148,7 +131,7 @@ class CaptureService:
 
     def _capture_worker(self, count: int, iface: str | None, bpf_filter: str | None):
         """
-        Ela executa o sniff do Scapy e atualiza o relatório ao terminar.
+        Executa o sniff do Scapy e atualiza o relatório ao terminar.
         """
         had_error = False
 
@@ -176,9 +159,11 @@ class CaptureService:
 
         finally:
             if not had_error:
-                report = self.analyzer.build_report()
-                app_state.update_report(report)
-                app_state.stop_capture()
+                snapshot = app_state.get_snapshot()
+
+                if snapshot["is_capturing"]:
+                    report = self.analyzer.build_report()
+                    app_state.finish_capture(report)
 
     def _handle_packet(self, packet):
         """
@@ -203,8 +188,7 @@ class CaptureService:
         report["risk_level"] = "Erro"
         report["findings"] = [message]
 
-        app_state.update_report(report)
-        app_state.set_error(message)
+        app_state.fail_capture(report, message)
 
 
 capture_service = CaptureService()

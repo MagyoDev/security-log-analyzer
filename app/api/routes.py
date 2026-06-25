@@ -83,6 +83,43 @@ def get_interfaces():
         "interfaces": interfaces
     }
 
+@router.get("/history")
+def get_history():
+    """
+    Retorna o histórico resumido das capturas.
+    """
+    return {
+        "history": app_state.get_history()
+    }
+
+
+@router.get("/history/{capture_id}")
+def get_history_report(capture_id: str):
+    """
+    Retorna o relatório completo de uma captura do histórico.
+    """
+    report = app_state.get_history_report(capture_id)
+
+    if report is None:
+        return {
+            "error": "Capture not found"
+        }
+
+    return report
+
+
+@router.post("/history/clear")
+def clear_history():
+    """
+    Limpa o histórico de capturas.
+    """
+    app_state.clear_history()
+
+    return {
+        "message": "History cleared",
+        "history": app_state.get_history()
+    }
+
 @router.get("/export/json")
 def export_json():
     """

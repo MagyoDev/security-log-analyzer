@@ -255,6 +255,40 @@
             </article>
 
             <article class="panel full-width">
+                <div class="panel-header">
+                    <div>
+                        <h3>Histórico de capturas</h3>
+                        <p>Últimas análises realizadas nesta sessão</p>
+                    </div>
+
+                    <button id="clear-history-button" class="small-danger-button">
+                        Limpar histórico
+                    </button>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Status</th>
+                            <th>Modo</th>
+                            <th>Pacotes</th>
+                            <th>Risco</th>
+                            <th>Interface</th>
+                            <th>Filtro</th>
+                            <th>Início</th>
+                            <th>Fim</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body">
+                        <tr>
+                            <td colspan="9">Nenhuma captura no histórico.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </article>
+
+            <article class="panel full-width">
                 <h3>Alertas recentes</h3>
                 <div id="findings-list" class="findings-list">
                     <div class="alert empty">

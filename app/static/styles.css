@@ -446,3 +446,64 @@ button:disabled {
 .capture-box input::placeholder {
     color: #5f7695;
 }
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.panel-header h3 {
+    margin: 0;
+}
+
+.panel-header p {
+    margin: 4px 0 0;
+    color: #8fa3bf;
+    font-size: 13px;
+}
+
+.small-danger-button {
+    padding: 8px 12px;
+    border: 1px solid rgba(231, 76, 60, 0.45);
+    border-radius: 8px;
+    background: rgba(231, 76, 60, 0.12);
+    color: #ff7675;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.small-danger-button:hover {
+    background: rgba(231, 76, 60, 0.22);
+}
+
+.status-pill {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.status-pill.completed {
+    background: rgba(88, 166, 255, 0.18);
+    color: #58a6ff;
+}
+
+.status-pill.capturing {
+    background: rgba(46, 204, 113, 0.18);
+    color: #2ecc71;
+}
+
+.status-pill.error {
+    background: rgba(231, 76, 60, 0.18);
+    color: #ff7675;
+}
+
+.status-pill.idle {
+    background: rgba(149, 165, 166, 0.18);
+    color: #bdc3c7;
+}
